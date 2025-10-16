@@ -183,9 +183,17 @@ export default function FeedPage() {
           <div key={post.id} className="bg-gradient-to-br from-purple-900/40 to-purple-950/40 rounded-lg p-6 border border-purple-800/50 mb-4">
             {/* Post Header */}
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-purple-700 flex items-center justify-center text-white font-bold">
-                {post.user.displayName[0]}
-              </div>
+              {post.user.avatarUrl ? (
+                <img
+                  src={post.user.avatarUrl}
+                  alt={post.user.displayName}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-purple-700 flex items-center justify-center text-white font-bold">
+                  {post.user.displayName[0]}
+                </div>
+              )}
               <div className="flex-1">
                 <h3 className="font-bold text-purple-100">{post.user.displayName}</h3>
                 <p className="text-sm text-purple-400">@{post.user.username} · {formatDate(post.createdAt)}</p>
@@ -219,9 +227,17 @@ export default function FeedPage() {
                 {post.comments.map(comment => (
                   <div key={comment.id} className="bg-purple-900/30 rounded-lg p-3 mb-2">
                     <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 rounded-full bg-purple-700 flex items-center justify-center text-white text-xs font-bold">
-                        {comment.user.displayName[0]}
-                      </div>
+                      {comment.user.avatarUrl ? (
+                        <img
+                          src={comment.user.avatarUrl}
+                          alt={comment.user.displayName}
+                          className="w-6 h-6 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-purple-700 flex items-center justify-center text-white text-xs font-bold">
+                          {comment.user.displayName[0]}
+                        </div>
+                      )}
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-purple-200">{comment.user.displayName}</p>
                         <p className="text-sm text-purple-300">{comment.text}</p>

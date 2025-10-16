@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
           id: userId,
           username: username.toLowerCase().replace(/\s/g, '_'),
           displayName: username,
+          avatarUrl: clerkUser?.imageUrl || null,
         },
       });
     }
