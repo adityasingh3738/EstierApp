@@ -143,7 +143,7 @@ export default function FeedPage() {
       <main className="max-w-3xl mx-auto px-4 py-8">
         {/* New Post Form */}
         <div className="bg-gradient-to-br from-purple-900/60 to-purple-950/60 rounded-lg p-6 border border-purple-700 mb-8">
-          <h2 className="text-xl font-bold text-purple-100 mb-4">What's on your mind?</h2>
+          <h2 className="text-xl font-bold text-purple-100 mb-4">What&apos;s on your mind?</h2>
           <form onSubmit={handlePost}>
             <textarea
               value={newPost}
