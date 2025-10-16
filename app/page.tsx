@@ -45,31 +45,30 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-black">
+    <div className="min-h-screen bg-[#0f0620]">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Info Banner */}
-        <div className="bg-purple-900/30 border border-purple-700/50 rounded-lg p-4 mb-8">
-          <p className="text-purple-200 text-center text-sm sm:text-base">
-            Vote for your favorite desi hip-hop tracks! Voting opens Monday and closes Sunday. 
-            <span className="block mt-1 text-purple-300">Top tracks will be featured on our weekly playlist.</span>
+        <div className="bg-[#1a0b2e]/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-4 mb-6">
+          <p className="text-purple-200/90 text-center text-sm">
+            Vote for your favorite desi hip-hop tracks! Voting opens Monday and closes Sunday.
           </p>
         </div>
 
         {loading && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-            <p className="text-purple-300 mt-4">Loading tracks...</p>
+            <p className="text-purple-300 mt-4 text-sm">Loading tracks...</p>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-900/30 border border-red-700 rounded-lg p-6 text-center">
-            <p className="text-red-300">⚠️ {error}</p>
+          <div className="bg-red-900/20 border border-red-700/50 rounded-xl p-6 text-center">
+            <p className="text-red-300 text-sm">⚠️ {error}</p>
             <button
               onClick={fetchTracks}
-              className="mt-4 px-6 py-2 bg-purple-700 hover:bg-purple-600 rounded-lg transition-colors"
+              className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-lg transition-colors"
             >
               Try Again
             </button>
@@ -77,14 +76,14 @@ export default function Home() {
         )}
 
         {!loading && !error && tracks.length === 0 && (
-          <div className="bg-purple-900/30 border border-purple-700/50 rounded-lg p-12 text-center">
-            <p className="text-purple-300 text-lg">No tracks available this week yet.</p>
-            <p className="text-purple-400 text-sm mt-2">Check back Monday for new releases!</p>
+          <div className="bg-[#1a0b2e]/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-12 text-center">
+            <p className="text-purple-300 text-base">No tracks available this week yet.</p>
+            <p className="text-purple-400/70 text-sm mt-2">Check back Monday for new releases!</p>
           </div>
         )}
 
         {!loading && !error && tracks.length > 0 && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {tracks.map((track, index) => (
               <TrackCard 
                 key={track.id} 
@@ -97,8 +96,8 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="border-t border-purple-800 mt-16 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-purple-400 text-sm">
+      <footer className="border-t border-purple-900/50 mt-12 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-purple-400/60 text-xs">
           <p>© 2025 Estier - Celebrating Desi Hip-Hop Culture</p>
         </div>
       </footer>
