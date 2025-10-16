@@ -33,6 +33,8 @@ export default function ProfilePage() {
   }, [user]);
 
   if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-black">
         <Header />
         <div className="max-w-3xl mx-auto px-4 py-20 text-center">
           <p className="text-purple-300 text-lg">Please sign in to view your profile</p>
