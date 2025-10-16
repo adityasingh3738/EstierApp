@@ -20,7 +20,16 @@ async function getSpotifyToken() {
     body: 'grant_type=client_credentials',
   });
 
+  if (!response.ok) {
+    const errorData = await response.text();
+    console.error('Spotify token error:', errorData);
+    throw new Error(`Failed to get Spotify token: ${response.status}`);
+  }
+
   const data = await response.json();
+  if (!data.access_token) {
+    throw new Error('No access token in Spotify response');
+  }
   return data.access_token;
 }
 
@@ -33,6 +42,7 @@ function extractSpotifyId(input: string): string {
 // Fetch track details from Spotify
 async function fetchSpotifyTrack(spotifyInput: string) {
   const trackId = extractSpotifyId(spotifyInput);
+  console.log('Fetching track:', trackId);
   const token = await getSpotifyToken();
 
   const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
@@ -42,7 +52,9 @@ async function fetchSpotifyTrack(spotifyInput: string) {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch Spotify track: ${response.statusText}`);
+    const errorData = await response.text();
+    console.error('Spotify track fetch error:', errorData);
+    throw new Error(`Failed to fetch Spotify track ${trackId}: ${response.status}`);
   }
 
   const data = await response.json();
