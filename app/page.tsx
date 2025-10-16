@@ -55,6 +55,14 @@ export default function Home() {
             Vote for your favorite desi hip-hop tracks! Voting opens Monday and closes Sunday. 
             <span className="block mt-1 text-purple-300">Top tracks will be featured on our weekly playlist.</span>
           </p>
+          <div className="text-center mt-3">
+            <a 
+              href="/archive"
+              className="inline-block text-purple-400 hover:text-purple-300 text-sm underline"
+            >
+              📜 View Previous Weeks
+            </a>
+          </div>
         </div>
 
         {loading && (
