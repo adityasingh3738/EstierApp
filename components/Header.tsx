@@ -1,10 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { getTimeUntilSunday, isVotingLocked } from '@/lib/utils';
 
 export default function Header() {
+  const pathname = usePathname();
   const [timeLeft, setTimeLeft] = useState(getTimeUntilSunday());
   const [locked, setLocked] = useState(isVotingLocked());
 
@@ -67,6 +70,40 @@ export default function Header() {
             </div>
           </div>
         </div>
+
+        {/* Navigation Tabs */}
+        <nav className="mt-6 flex gap-2 border-b border-purple-800 overflow-x-auto">
+          <Link
+            href="/"
+            className={`px-6 py-3 font-semibold transition-all whitespace-nowrap ${
+              pathname === '/'
+                ? 'text-purple-200 border-b-2 border-purple-400'
+                : 'text-purple-400 hover:text-purple-300'
+            }`}
+          >
+            🎵 Voting
+          </Link>
+          <Link
+            href="/hottakes"
+            className={`px-6 py-3 font-semibold transition-all whitespace-nowrap ${
+              pathname === '/hottakes'
+                ? 'text-red-300 border-b-2 border-red-400'
+                : 'text-purple-400 hover:text-purple-300'
+            }`}
+          >
+            🔥 Hot Takes
+          </Link>
+          <Link
+            href="/archive"
+            className={`px-6 py-3 font-semibold transition-all whitespace-nowrap ${
+              pathname === '/archive'
+                ? 'text-purple-200 border-b-2 border-purple-400'
+                : 'text-purple-400 hover:text-purple-300'
+            }`}
+          >
+            📜 Archive
+          </Link>
+        </nav>
       </div>
     </header>
   );

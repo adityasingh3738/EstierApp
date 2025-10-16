@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import Header from '@/components/Header';
 
 interface HotTake {
   id: string;
@@ -137,15 +137,14 @@ export default function HotTakesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-black">
-      {/* Header */}
+      <Header />
+      
+      {/* Page Header */}
       <div className="border-b border-purple-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link href="/" className="text-purple-400 hover:text-purple-300 text-sm mb-2 inline-block">
-            ← Back to Voting
-          </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">
+              <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">
                 🔥 Hot Takes
               </h1>
               <p className="text-purple-300 mt-2">Share your spicy opinions on desi hip-hop</p>

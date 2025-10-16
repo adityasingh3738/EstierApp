@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import Header from '@/components/Header';
 
 interface Track {
   id: string;
@@ -61,16 +61,12 @@ export default function ArchivePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-black">
-      {/* Header */}
+      <Header />
+      
+      {/* Page Header */}
       <div className="border-b border-purple-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link 
-            href="/"
-            className="text-purple-400 hover:text-purple-300 text-sm mb-2 inline-block"
-          >
-            ← Back to Current Week
-          </Link>
-          <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+          <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
             Archive
           </h1>
           <p className="text-purple-300 mt-2">Top 10 tracks from previous weeks</p>
