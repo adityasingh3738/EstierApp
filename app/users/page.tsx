@@ -178,14 +178,14 @@ export default function UsersPage() {
                       <div className="mt-3 p-2 bg-green-900/20 border border-green-700/30 rounded-lg">
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-green-400">
-                            {spotifyActivity[user.id].currentlyPlaying.isPlaying ? '🎵 Listening to' : '🎵 Last played'}
+                            {spotifyActivity[user.id]?.currentlyPlaying?.isPlaying ? '🎵 Listening to' : '🎵 Last played'}
                           </span>
                         </div>
                         <p className="text-xs text-purple-200 mt-1 truncate">
-                          {spotifyActivity[user.id].currentlyPlaying.name}
+                          {spotifyActivity[user.id]?.currentlyPlaying?.name}
                         </p>
                         <p className="text-xs text-purple-400 truncate">
-                          {spotifyActivity[user.id].currentlyPlaying.artist}
+                          {spotifyActivity[user.id]?.currentlyPlaying?.artist}
                         </p>
                       </div>
                     )}
@@ -193,10 +193,10 @@ export default function UsersPage() {
                       <div className="mt-3 p-2 bg-purple-900/20 border border-purple-700/30 rounded-lg">
                         <p className="text-xs text-purple-400">🎵 Recently played</p>
                         <p className="text-xs text-purple-200 mt-1 truncate">
-                          {spotifyActivity[user.id].recentlyPlayed.name}
+                          {spotifyActivity[user.id]?.recentlyPlayed?.name}
                         </p>
                         <p className="text-xs text-purple-400 truncate">
-                          {spotifyActivity[user.id].recentlyPlayed.artist}
+                          {spotifyActivity[user.id]?.recentlyPlayed?.artist}
                         </p>
                       </div>
                     )}

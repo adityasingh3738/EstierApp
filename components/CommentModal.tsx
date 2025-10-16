@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface Comment {
   id: string;
@@ -22,13 +22,7 @@ export default function CommentModal({ trackId, trackTitle, isOpen, onClose }: C
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchComments();
-    }
-  }, [isOpen, trackId]);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/comments/${trackId}`);
@@ -41,7 +35,14 @@ export default function CommentModal({ trackId, trackTitle, isOpen, onClose }: C
     } finally {
       setLoading(false);
     }
-  };
+  }, [trackId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchComments();
+    }
+  }, [isOpen, fetchComments]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
