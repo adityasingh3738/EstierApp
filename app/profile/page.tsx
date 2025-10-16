@@ -149,7 +149,7 @@ export default function ProfilePage() {
             ) : (
               <div className="bg-purple-900/30 border border-purple-700 rounded-lg p-4">
                 <p className="text-purple-300 text-sm mb-4">
-                  Connect your Spotify account to display what you're listening to on your profile!
+                  Connect your Spotify account to display what you&apos;re listening to on your profile!
                 </p>
                 <a
                   href="/api/spotify/auth"
