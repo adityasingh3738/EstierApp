@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { isVotingLocked } from '@/lib/utils';
+import CommentModal from './CommentModal';
 
 interface Track {
   id: string;
@@ -25,6 +26,8 @@ export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps)
   const [currentVoteCount, setCurrentVoteCount] = useState(track.voteCount);
   const [isVoting, setIsVoting] = useState(false);
   const [locked] = useState(isVotingLocked());
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
   // Update vote count when track data changes (from server refresh)
   useEffect(() => {
@@ -36,6 +39,12 @@ export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps)
     fetch(`/api/vote?trackId=${track.id}`)
       .then(res => res.json())
       .then(data => setUserVote(data.value || 0))
+      .catch(console.error);
+
+    // Fetch comment count
+    fetch(`/api/comments/${track.id}`)
+      .then(res => res.json())
+      .then(data => setCommentCount(data.length || 0))
       .catch(console.error);
   }, [track.id]);
 
@@ -125,8 +134,8 @@ export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps)
           </h3>
           <p className="text-purple-300 text-sm sm:text-base truncate">{track.artist}</p>
           
-          {/* Links */}
-          <div className="flex gap-3 mt-3">
+          {/* Links and Comments */}
+          <div className="flex gap-3 mt-3 items-center">
             {track.spotifyUrl && (
               <a
                 href={track.spotifyUrl}
@@ -147,6 +156,12 @@ export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps)
                 ▶️ YouTube
               </a>
             )}
+            <button
+              onClick={() => setShowComments(true)}
+              className="text-purple-400 hover:text-purple-300 text-sm transition-colors flex items-center gap-1"
+            >
+              💬 {commentCount > 0 && `(${commentCount})`}
+            </button>
           </div>
         </div>
 
@@ -181,6 +196,21 @@ export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps)
           </button>
         </div>
       </div>
+
+      {/* Comment Modal */}
+      <CommentModal
+        trackId={track.id}
+        trackTitle={`${track.title} - ${track.artist}`}
+        isOpen={showComments}
+        onClose={() => {
+          setShowComments(false);
+          // Refresh comment count
+          fetch(`/api/comments/${track.id}`)
+            .then(res => res.json())
+            .then(data => setCommentCount(data.length || 0))
+            .catch(console.error);
+        }}
+      />
     </div>
   );
 }
