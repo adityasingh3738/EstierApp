@@ -33,18 +33,23 @@ async function getSpotifyToken() {
   return data.access_token;
 }
 
-// Extract Spotify track ID from URL or ID
-function extractSpotifyId(input: string): string {
-  const match = input.match(/track\/([a-zA-Z0-9]+)/);
-  return match ? match[1] : input;
+// Extract Spotify ID and type from URL or ID
+function extractSpotifyInfo(input: string): { type: 'track' | 'album' | 'playlist', id: string } {
+  const trackMatch = input.match(/track\/([a-zA-Z0-9]+)/);
+  if (trackMatch) return { type: 'track', id: trackMatch[1] };
+  
+  const albumMatch = input.match(/album\/([a-zA-Z0-9]+)/);
+  if (albumMatch) return { type: 'album', id: albumMatch[1] };
+  
+  const playlistMatch = input.match(/playlist\/([a-zA-Z0-9]+)/);
+  if (playlistMatch) return { type: 'playlist', id: playlistMatch[1] };
+  
+  // Default to track if no pattern matched
+  return { type: 'track', id: input };
 }
 
 // Fetch track details from Spotify
-async function fetchSpotifyTrack(spotifyInput: string) {
-  const trackId = extractSpotifyId(spotifyInput);
-  console.log('Fetching track:', trackId);
-  const token = await getSpotifyToken();
-
+async function fetchSpotifyTrack(trackId: string, token: string) {
   const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -66,6 +71,80 @@ async function fetchSpotifyTrack(spotifyInput: string) {
   };
 }
 
+// Fetch album tracks from Spotify
+async function fetchSpotifyAlbum(albumId: string, token: string) {
+  const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.text();
+    console.error('Spotify album fetch error:', errorData);
+    throw new Error(`Failed to fetch Spotify album ${albumId}: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const albumImage = data.images[0]?.url || null;
+  
+  // Map all tracks in the album
+  return data.tracks.items.map((track: any) => ({
+    title: track.name,
+    artist: track.artists.map((a: any) => a.name).join(', '),
+    spotifyUrl: track.external_urls.spotify,
+    imageUrl: albumImage, // Use album art for all tracks
+  }));
+}
+
+// Fetch playlist tracks from Spotify
+async function fetchSpotifyPlaylist(playlistId: string, token: string) {
+  const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.text();
+    console.error('Spotify playlist fetch error:', errorData);
+    throw new Error(`Failed to fetch Spotify playlist ${playlistId}: ${response.status}`);
+  }
+
+  const data = await response.json();
+  
+  // Map all tracks in the playlist
+  return data.items
+    .filter((item: any) => item.track) // Filter out null tracks
+    .map((item: any) => {
+      const track = item.track;
+      return {
+        title: track.name,
+        artist: track.artists.map((a: any) => a.name).join(', '),
+        spotifyUrl: track.external_urls.spotify,
+        imageUrl: track.album.images[0]?.url || null,
+      };
+    });
+}
+
+// Fetch tracks from Spotify (track, album, or playlist)
+async function fetchSpotifyContent(spotifyInput: string) {
+  const { type, id } = extractSpotifyInfo(spotifyInput);
+  console.log(`Fetching ${type}:`, id);
+  const token = await getSpotifyToken();
+
+  if (type === 'track') {
+    const track = await fetchSpotifyTrack(id, token);
+    return [track]; // Return as array for consistency
+  } else if (type === 'album') {
+    return await fetchSpotifyAlbum(id, token);
+  } else if (type === 'playlist') {
+    return await fetchSpotifyPlaylist(id, token);
+  }
+  
+  throw new Error('Invalid Spotify URL type');
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Simple auth - check for admin key
@@ -81,8 +160,10 @@ export async function POST(req: NextRequest) {
 
     // If spotifyUrls provided, fetch from Spotify API
     if (spotifyUrls && Array.isArray(spotifyUrls)) {
-      const fetchPromises = spotifyUrls.map((url: string) => fetchSpotifyTrack(url));
-      trackData = await Promise.all(fetchPromises);
+      const fetchPromises = spotifyUrls.map((url: string) => fetchSpotifyContent(url));
+      const results = await Promise.all(fetchPromises);
+      // Flatten array of arrays (since albums/playlists return multiple tracks)
+      trackData = results.flat();
     }
     // Otherwise use manually provided track data
     else if (tracks && Array.isArray(tracks)) {

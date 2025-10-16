@@ -84,10 +84,21 @@ export default function TrackCard({ track, rank }: TrackCardProps) {
   return (
     <div className="bg-gradient-to-br from-purple-900/40 to-purple-950/40 rounded-lg p-4 sm:p-6 border border-purple-800/50 hover:border-purple-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/50">
       <div className="flex items-start gap-4">
+        {/* Album Art */}
+        {track.imageUrl && (
+          <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20">
+            <img
+              src={track.imageUrl}
+              alt={`${track.title} cover`}
+              className="w-full h-full rounded-lg object-cover shadow-lg"
+            />
+          </div>
+        )}
+
         {/* Rank */}
-        <div className="flex-shrink-0 w-12 sm:w-16">
-          <div className={`text-3xl sm:text-4xl font-bold ${getRankColor()}`}>
-            {getRankEmoji()} #{rank}
+        <div className="flex-shrink-0 w-12 sm:w-14">
+          <div className={`text-2xl sm:text-3xl font-bold ${getRankColor()}`}>
+            #{rank}
           </div>
         </div>
 

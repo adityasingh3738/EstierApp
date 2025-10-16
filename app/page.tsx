@@ -22,6 +22,10 @@ export default function Home() {
 
   useEffect(() => {
     fetchTracks();
+    
+    // Poll for updates every 5 seconds to refresh rankings
+    const interval = setInterval(fetchTracks, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchTracks = async () => {

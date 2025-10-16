@@ -68,15 +68,20 @@ export default function AdminPage() {
 
             <div>
               <label htmlFor="spotifyUrls" className="block text-sm font-medium text-gray-300 mb-2">
-                Spotify Track URLs (one per line)
+                Spotify URLs (one per line)
               </label>
+              <p className="text-xs text-gray-400 mb-2">
+                Supports tracks, albums, or playlists. For albums/playlists, all tracks will be added.
+              </p>
               <textarea
                 id="spotifyUrls"
                 value={spotifyUrls}
                 onChange={(e) => setSpotifyUrls(e.target.value)}
                 rows={10}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="https://open.spotify.com/track/..."
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+                placeholder="https://open.spotify.com/track/...
+https://open.spotify.com/album/...
+https://open.spotify.com/playlist/..."
                 required
               />
             </div>
