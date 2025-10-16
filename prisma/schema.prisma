@@ -47,3 +47,29 @@ model Comment {
   @@index([trackId])
   @@index([userId])
 }
+
+model HotTake {
+  id        String           @id @default(cuid())
+  userId    String           // Clerk user ID
+  userName  String           // Store user name for display
+  title     String
+  content   String
+  createdAt DateTime         @default(now())
+  comments  HotTakeComment[]
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model HotTakeComment {
+  id         String   @id @default(cuid())
+  hotTakeId  String
+  hotTake    HotTake  @relation(fields: [hotTakeId], references: [id], onDelete: Cascade)
+  userId     String   // Clerk user ID
+  userName   String   // Store user name for display
+  text       String
+  createdAt  DateTime @default(now())
+  
+  @@index([hotTakeId])
+  @@index([userId])
+}
