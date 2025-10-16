@@ -73,3 +73,71 @@ model HotTakeComment {
   @@index([hotTakeId])
   @@index([userId])
 }
+
+model User {
+  id              String        @id // Clerk user ID
+  username        String        @unique
+  displayName     String
+  bio             String?
+  avatarUrl       String?
+  createdAt       DateTime      @default(now())
+  posts           Post[]
+  postLikes       PostLike[]
+  postComments    PostComment[]
+  followers       Follow[]      @relation("UserFollowers")
+  following       Follow[]      @relation("UserFollowing")
+  
+  @@index([username])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // User who is following
+  followingId String   // User being followed
+  follower    User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Post {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime      @default(now())
+  likes     PostLike[]
+  comments  PostComment[]
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String
+  createdAt DateTime @default(now())
+  
+  @@index([postId])
+  @@index([userId])
+}
