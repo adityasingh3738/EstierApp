@@ -43,31 +43,38 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingVote) {
-      // If same vote, remove it (toggle off)
-      if (existingVote.value === value) {
-        await prisma.vote.delete({
-          where: { id: existingVote.id },
-        });
-        return NextResponse.json({ action: 'removed', value: 0 });
-      } else {
-        // If different vote, update it
-        await prisma.vote.update({
-          where: { id: existingVote.id },
-          data: { value },
-        });
-        return NextResponse.json({ action: 'updated', value });
-      }
-    } else {
-      // Create new vote
-      await prisma.vote.create({
-        data: {
-          trackId,
-          userId,
-          value,
-        },
-      });
-      return NextResponse.json({ action: 'created', value });
+      // Votes are locked - cannot change or remove
+      return NextResponse.json(
+        { error: 'Vote already cast. You cannot change your vote.' },
+        { status: 400 }
+      );
     }
+
+    // Check if user already has a vote of this type (upvote or downvote) on ANY track
+    const existingVoteOfType = await prisma.vote.findFirst({
+      where: {
+        userId,
+        value,
+      },
+    });
+
+    if (existingVoteOfType) {
+      // User already used their upvote or downvote
+      return NextResponse.json(
+        { error: `You have already used your ${value === 1 ? 'upvote' : 'downvote'}.` },
+        { status: 400 }
+      );
+    }
+
+    // Create new vote
+    await prisma.vote.create({
+      data: {
+        trackId,
+        userId,
+        value,
+      },
+    });
+    return NextResponse.json({ action: 'created', value });
   } catch (error) {
     console.error('Error voting:', error);
     return NextResponse.json(

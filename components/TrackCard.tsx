@@ -17,13 +17,19 @@ interface Track {
 interface TrackCardProps {
   track: Track;
   rank: number;
+  onVoteChange?: () => void;
 }
 
-export default function TrackCard({ track, rank }: TrackCardProps) {
+export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps) {
   const [userVote, setUserVote] = useState<number>(0);
   const [currentVoteCount, setCurrentVoteCount] = useState(track.voteCount);
   const [isVoting, setIsVoting] = useState(false);
   const [locked] = useState(isVotingLocked());
+
+  // Update vote count when track data changes (from server refresh)
+  useEffect(() => {
+    setCurrentVoteCount(track.voteCount);
+  }, [track.voteCount]);
 
   useEffect(() => {
     // Fetch user's current vote for this track
@@ -34,9 +40,20 @@ export default function TrackCard({ track, rank }: TrackCardProps) {
   }, [track.id]);
 
   const handleVote = async (value: number) => {
+    // Prevent multiple simultaneous votes
     if (locked || isVoting) return;
     
+    // Prevent voting same value twice (should toggle off instead)
+    const targetValue = userVote === value ? 0 : value;
+    
     setIsVoting(true);
+    
+    // Optimistically update UI
+    const oldVote = userVote;
+    const oldCount = currentVoteCount;
+    setUserVote(targetValue);
+    setCurrentVoteCount(oldCount + (targetValue - oldVote));
+    
     try {
       const response = await fetch('/api/vote', {
         method: 'POST',
@@ -46,20 +63,19 @@ export default function TrackCard({ track, rank }: TrackCardProps) {
 
       const data = await response.json();
       
-      if (response.ok) {
-        // Update local state based on action
-        const oldVote = userVote;
-        const newVote = data.value;
-        
-        setUserVote(newVote);
-        
-        // Calculate the difference in vote count
-        const diff = newVote - oldVote;
-        setCurrentVoteCount(prev => prev + diff);
-      } else {
+      if (!response.ok) {
+        // Revert on error
+        setUserVote(oldVote);
+        setCurrentVoteCount(oldCount);
         alert(data.error || 'Failed to vote');
+      } else {
+        // Notify parent to refresh all tracks (vote might have moved)
+        onVoteChange?.();
       }
     } catch (error) {
+      // Revert on error
+      setUserVote(oldVote);
+      setCurrentVoteCount(oldCount);
       console.error('Error voting:', error);
       alert('Failed to vote. Please try again.');
     } finally {

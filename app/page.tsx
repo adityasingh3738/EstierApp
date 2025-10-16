@@ -19,6 +19,7 @@ export default function Home() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     fetchTracks();
@@ -26,7 +27,7 @@ export default function Home() {
     // Poll for updates every 5 seconds to refresh rankings
     const interval = setInterval(fetchTracks, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshKey]);
 
   const fetchTracks = async () => {
     try {
@@ -85,7 +86,12 @@ export default function Home() {
         {!loading && !error && tracks.length > 0 && (
           <div className="space-y-4">
             {tracks.map((track, index) => (
-              <TrackCard key={track.id} track={track} rank={index + 1} />
+              <TrackCard 
+                key={track.id} 
+                track={track} 
+                rank={index + 1}
+                onVoteChange={() => setRefreshKey(prev => prev + 1)}
+              />
             ))}
           </div>
         )}
