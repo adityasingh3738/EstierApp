@@ -6,7 +6,38 @@ export default function AdminPage() {
   const [spotifyUrls, setSpotifyUrls] = useState('');
   const [adminKey, setAdminKey] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete all tracks for the current week? This cannot be undone!')) {
+      return;
+    }
+
+    setDeleting(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('/api/admin/tracks', {
+        method: 'DELETE',
+        headers: {
+          'x-admin-key': adminKey,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage(`✅ Successfully deleted ${data.deleted} tracks!`);
+      } else {
+        setMessage(`❌ Error: ${data.error || 'Failed to delete tracks'}`);
+      }
+    } catch (error) {
+      setMessage(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,12 +119,25 @@ https://open.spotify.com/playlist/..."
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || deleting}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Adding Tracks...' : 'Add Tracks'}
             </button>
           </form>
+
+          {/* Delete Section */}
+          <div className="mt-8 pt-8 border-t border-white/10">
+            <h2 className="text-2xl font-bold text-white mb-2">Danger Zone</h2>
+            <p className="text-gray-400 mb-4">Delete tracks for the current week</p>
+            <button
+              onClick={handleDelete}
+              disabled={loading || deleting || !adminKey}
+              className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deleting ? 'Deleting...' : '🗑️ Delete Current Week\'s Tracks'}
+            </button>
+          </div>
 
           {message && (
             <div className="mt-6 p-4 bg-white/5 border border-white/10 rounded-lg">

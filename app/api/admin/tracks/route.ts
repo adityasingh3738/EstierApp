@@ -145,6 +145,53 @@ async function fetchSpotifyContent(spotifyInput: string) {
   throw new Error('Invalid Spotify URL type');
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    // Simple auth - check for admin key
+    const adminKey = req.headers.get('x-admin-key');
+    if (adminKey !== process.env.ADMIN_KEY) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const weekStart = searchParams.get('weekStart');
+
+    if (weekStart) {
+      // Delete tracks for specific week
+      const targetDate = new Date(weekStart);
+      const result = await prisma.track.deleteMany({
+        where: {
+          weekStart: targetDate,
+        },
+      });
+      return NextResponse.json({
+        success: true,
+        deleted: result.count,
+        weekStart: weekStart,
+      });
+    } else {
+      // Delete all tracks for current week
+      const currentWeekStart = getWeekStart(new Date());
+      const result = await prisma.track.deleteMany({
+        where: {
+          weekStart: currentWeekStart,
+        },
+      });
+      return NextResponse.json({
+        success: true,
+        deleted: result.count,
+        weekStart: currentWeekStart.toISOString(),
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting tracks:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete tracks', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Simple auth - check for admin key
