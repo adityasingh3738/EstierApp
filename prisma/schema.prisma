@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Track {
+  id          String   @id @default(cuid())
+  title       String
+  artist      String
+  spotifyUrl  String?
+  youtubeUrl  String?
+  imageUrl    String?
+  weekStart   DateTime
+  createdAt   DateTime @default(now())
+  votes       Vote[]
+  
+  @@index([weekStart])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  trackId   String
+  track     Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  userId    String   // Clerk user ID
+  value     Int      // 1 for upvote, -1 for downvote
+  createdAt DateTime @default(now())
+  
+  @@unique([trackId, userId])
+  @@index([trackId])
+  @@index([userId])
+}
