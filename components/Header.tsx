@@ -50,7 +50,7 @@ export default function Header() {
               )}
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <SignedOut>
                 <SignInButton mode="modal">
                   <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
@@ -59,6 +59,12 @@ export default function Header() {
                 </SignInButton>
               </SignedOut>
               <SignedIn>
+                <Link
+                  href="/profile"
+                  className="text-purple-300 hover:text-purple-200 transition-colors"
+                >
+                  Profile
+                </Link>
                 <UserButton 
                   appearance={{
                     elements: {
