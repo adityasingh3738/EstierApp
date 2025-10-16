@@ -100,6 +100,16 @@ export default function Header() {
             💬 Feed
           </Link>
           <Link
+            href="/users"
+            className={`px-6 py-3 font-semibold transition-all whitespace-nowrap ${
+              pathname === '/users'
+                ? 'text-green-300 border-b-2 border-green-400'
+                : 'text-purple-400 hover:text-purple-300'
+            }`}
+          >
+            👥 Users
+          </Link>
+          <Link
             href="/hottakes"
             className={`px-6 py-3 font-semibold transition-all whitespace-nowrap ${
               pathname === '/hottakes'
