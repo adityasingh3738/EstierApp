@@ -4,10 +4,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const hotTakeId = params.id;
+    const { id: hotTakeId } = await params;
 
     const comments = await prisma.hotTakeComment.findMany({
       where: {
@@ -27,7 +27,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -42,7 +42,7 @@ export async function POST(
     const user = await currentUser();
     const userName = user?.firstName || user?.username || 'Anonymous';
 
-    const hotTakeId = params.id;
+    const { id: hotTakeId } = await params;
     const { text } = await request.json();
 
     if (!text || text.trim().length === 0) {
