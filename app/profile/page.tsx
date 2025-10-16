@@ -8,10 +8,31 @@ export default function ProfilePage() {
   const { user } = useUser();
   const [updating, setUpdating] = useState(false);
   const [message, setMessage] = useState('');
+  const [spotifyActivity, setSpotifyActivity] = useState<any>(null);
+  const [loadingSpotify, setLoadingSpotify] = useState(true);
+
+  useEffect(() => {
+    if (user?.id) {
+      // Check URL params for Spotify OAuth status
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('spotify_success')) {
+        setMessage('✅ Spotify connected successfully!');
+      } else if (params.get('spotify_error')) {
+        setMessage(`❌ Spotify connection failed: ${params.get('spotify_error')}`);
+      }
+
+      // Fetch Spotify activity
+      fetch(`/api/spotify/listening/${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setSpotifyActivity(data);
+        })
+        .catch(console.error)
+        .finally(() => setLoadingSpotify(false));
+    }
+  }, [user]);
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-black">
         <Header />
         <div className="max-w-3xl mx-auto px-4 py-20 text-center">
           <p className="text-purple-300 text-lg">Please sign in to view your profile</p>
@@ -60,6 +81,82 @@ export default function ProfilePage() {
                 <li>• Username: @{user.username || user.firstName?.toLowerCase()}</li>
               </ul>
             </div>
+          </div>
+
+          {/* Spotify Integration */}
+          <div className="border-t border-purple-800 pt-6 mt-6">
+            <h2 className="text-xl font-bold text-purple-200 mb-4">🎵 Spotify Integration</h2>
+            
+            {loadingSpotify ? (
+              <p className="text-purple-400 text-sm">Loading Spotify status...</p>
+            ) : spotifyActivity?.connected ? (
+              <div className="space-y-4">
+                <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-4">
+                  <p className="text-green-400 text-sm font-semibold mb-2">✅ Spotify Connected</p>
+                  <p className="text-purple-300 text-xs">Your listening activity will be visible to other users.</p>
+                </div>
+
+                {spotifyActivity.currentlyPlaying && (
+                  <div className="bg-purple-900/30 border border-purple-700 rounded-lg p-4">
+                    <h3 className="text-purple-200 font-semibold mb-2">
+                      {spotifyActivity.currentlyPlaying.isPlaying ? '🎵 Currently Listening' : '🎵 Last Played'}
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      {spotifyActivity.currentlyPlaying.imageUrl && (
+                        <img
+                          src={spotifyActivity.currentlyPlaying.imageUrl}
+                          alt="Album cover"
+                          className="w-16 h-16 rounded-lg"
+                        />
+                      )}
+                      <div>
+                        <p className="text-purple-100 font-medium">{spotifyActivity.currentlyPlaying.name}</p>
+                        <p className="text-purple-400 text-sm">{spotifyActivity.currentlyPlaying.artist}</p>
+                        <a
+                          href={spotifyActivity.currentlyPlaying.spotifyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-400 hover:text-green-300 text-xs mt-1 inline-block"
+                        >
+                          Open in Spotify →
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {spotifyActivity.recentlyPlayed && !spotifyActivity.currentlyPlaying && (
+                  <div className="bg-purple-900/30 border border-purple-700 rounded-lg p-4">
+                    <h3 className="text-purple-200 font-semibold mb-2">🎵 Recently Played</h3>
+                    <div className="flex items-center gap-4">
+                      {spotifyActivity.recentlyPlayed.imageUrl && (
+                        <img
+                          src={spotifyActivity.recentlyPlayed.imageUrl}
+                          alt="Album cover"
+                          className="w-16 h-16 rounded-lg"
+                        />
+                      )}
+                      <div>
+                        <p className="text-purple-100 font-medium">{spotifyActivity.recentlyPlayed.name}</p>
+                        <p className="text-purple-400 text-sm">{spotifyActivity.recentlyPlayed.artist}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-purple-900/30 border border-purple-700 rounded-lg p-4">
+                <p className="text-purple-300 text-sm mb-4">
+                  Connect your Spotify account to display what you're listening to on your profile!
+                </p>
+                <a
+                  href="/api/spotify/auth"
+                  className="inline-block px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition"
+                >
+                  🎵 Connect Spotify
+                </a>
+              </div>
+            )}
           </div>
 
           {message && (

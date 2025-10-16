@@ -75,17 +75,20 @@ model HotTakeComment {
 }
 
 model User {
-  id              String        @id // Clerk user ID
-  username        String        @unique
-  displayName     String
-  bio             String?
-  avatarUrl       String?
-  createdAt       DateTime      @default(now())
-  posts           Post[]
-  postLikes       PostLike[]
-  postComments    PostComment[]
-  followers       Follow[]      @relation("UserFollowers")
-  following       Follow[]      @relation("UserFollowing")
+  id                   String        @id // Clerk user ID
+  username             String        @unique
+  displayName          String
+  bio                  String?
+  avatarUrl            String?
+  createdAt            DateTime      @default(now())
+  spotifyAccessToken   String?       // Spotify OAuth access token
+  spotifyRefreshToken  String?       // Spotify OAuth refresh token
+  spotifyExpiresAt     DateTime?     // Token expiry time
+  posts                Post[]
+  postLikes            PostLike[]
+  postComments         PostComment[]
+  followers            Follow[]      @relation("UserFollowers")
+  following            Follow[]      @relation("UserFollowing")
   
   @@index([username])
 }

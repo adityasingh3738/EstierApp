@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
           following: true,
           posts: true,
         },
-        take: 20,
       });
     } else {
       // Get all users
@@ -37,7 +36,6 @@ export async function GET(request: NextRequest) {
         orderBy: {
           createdAt: 'desc',
         },
-        take: 50,
       });
     }
 

@@ -15,15 +15,45 @@ interface User {
   isFollowing: boolean;
 }
 
+interface SpotifyActivity {
+  connected: boolean;
+  currentlyPlaying?: {
+    name: string;
+    artist: string;
+    imageUrl?: string;
+    spotifyUrl: string;
+    isPlaying: boolean;
+  };
+  recentlyPlayed?: {
+    name: string;
+    artist: string;
+    imageUrl?: string;
+    spotifyUrl: string;
+  };
+}
+
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const [spotifyActivity, setSpotifyActivity] = useState<Record<string, SpotifyActivity>>({});
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    // Fetch Spotify activity for all users
+    users.forEach(user => {
+      fetch(`/api/spotify/listening/${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setSpotifyActivity(prev => ({ ...prev, [user.id]: data }));
+        })
+        .catch(console.error);
+    });
+  }, [users]);
 
   const fetchUsers = async (query = '') => {
     setSearching(true);
@@ -141,6 +171,34 @@ export default function UsersPage() {
                     <p className="text-sm text-purple-400">@{user.username}</p>
                     {user.bio && (
                       <p className="text-sm text-purple-300 mt-2 line-clamp-2">{user.bio}</p>
+                    )}
+
+                    {/* Spotify Activity */}
+                    {spotifyActivity[user.id]?.currentlyPlaying && (
+                      <div className="mt-3 p-2 bg-green-900/20 border border-green-700/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-green-400">
+                            {spotifyActivity[user.id].currentlyPlaying.isPlaying ? '🎵 Listening to' : '🎵 Last played'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-purple-200 mt-1 truncate">
+                          {spotifyActivity[user.id].currentlyPlaying.name}
+                        </p>
+                        <p className="text-xs text-purple-400 truncate">
+                          {spotifyActivity[user.id].currentlyPlaying.artist}
+                        </p>
+                      </div>
+                    )}
+                    {spotifyActivity[user.id]?.recentlyPlayed && !spotifyActivity[user.id]?.currentlyPlaying && (
+                      <div className="mt-3 p-2 bg-purple-900/20 border border-purple-700/30 rounded-lg">
+                        <p className="text-xs text-purple-400">🎵 Recently played</p>
+                        <p className="text-xs text-purple-200 mt-1 truncate">
+                          {spotifyActivity[user.id].recentlyPlayed.name}
+                        </p>
+                        <p className="text-xs text-purple-400 truncate">
+                          {spotifyActivity[user.id].recentlyPlayed.artist}
+                        </p>
+                      </div>
                     )}
 
                     {/* Stats */}
