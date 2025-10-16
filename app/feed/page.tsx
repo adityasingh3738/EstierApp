@@ -196,7 +196,7 @@ export default function FeedPage() {
               )}
               <div className="flex-1">
                 <h3 className="font-bold text-purple-100">{post.user.displayName}</h3>
-                <p className="text-sm text-purple-400">@{post.user.username} · {formatDate(post.createdAt)}</p>
+                <p className="text-sm text-purple-400">@{post.user.username} &middot; {formatDate(post.createdAt)}</p>
               </div>
             </div>
 
