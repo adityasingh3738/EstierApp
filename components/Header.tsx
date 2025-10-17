@@ -1,24 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
-import { getTimeUntilSunday, isVotingLocked } from '@/lib/utils';
+import CountdownTimer from './CountdownTimer';
 
 export default function Header() {
   const pathname = usePathname();
-  const [timeLeft, setTimeLeft] = useState(getTimeUntilSunday());
-  const [locked, setLocked] = useState(isVotingLocked());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getTimeUntilSunday());
-      setLocked(isVotingLocked());
-    }, 60000); // Update every minute
-
-    return () => clearInterval(timer);
-  }, []);
 
   return (
     <header className="bg-[#0a0a0f] border-b border-[rgba(139,92,246,0.2)]">
@@ -36,16 +24,7 @@ export default function Header() {
           
           {/* Timer and Auth */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-purple-400">🕒</span>
-              {locked ? (
-                <span className="text-yellow-400 font-medium">Voting locked</span>
-              ) : (
-                <span className="text-white font-medium">
-                  Voting ends in: {timeLeft.days}d {timeLeft.hours}h:{String(timeLeft.minutes).padStart(2, '0')}m
-                </span>
-              )}
-            </div>
+            <CountdownTimer />
             
             <SignedOut>
               <SignInButton mode="modal">

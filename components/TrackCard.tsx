@@ -1,8 +1,5 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { isVotingLocked } from '@/lib/utils';
-import CommentModal from './CommentModal';
+import VoteButtons from './VoteButtons';
+import TrackCommentButton from './TrackCommentButton';
 
 interface Track {
   id: string;
@@ -18,79 +15,9 @@ interface Track {
 interface TrackCardProps {
   track: Track;
   rank: number;
-  onVoteChange?: () => void;
 }
 
-export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps) {
-  const [userVote, setUserVote] = useState<number>(0);
-  const [currentVoteCount, setCurrentVoteCount] = useState(track.voteCount);
-  const [isVoting, setIsVoting] = useState(false);
-  const [locked] = useState(isVotingLocked());
-  const [showComments, setShowComments] = useState(false);
-  const [commentCount, setCommentCount] = useState(0);
-
-  // Update vote count when track data changes (from server refresh)
-  useEffect(() => {
-    setCurrentVoteCount(track.voteCount);
-  }, [track.voteCount]);
-
-  useEffect(() => {
-    // Fetch user's current vote for this track
-    fetch(`/api/vote?trackId=${track.id}`)
-      .then(res => res.json())
-      .then(data => setUserVote(data.value || 0))
-      .catch(console.error);
-
-    // Fetch comment count
-    fetch(`/api/comments/${track.id}`)
-      .then(res => res.json())
-      .then(data => setCommentCount(data.length || 0))
-      .catch(console.error);
-  }, [track.id]);
-
-  const handleVote = async (value: number) => {
-    // Prevent multiple simultaneous votes
-    if (locked || isVoting) return;
-    
-    // Prevent voting same value twice (should toggle off instead)
-    const targetValue = userVote === value ? 0 : value;
-    
-    setIsVoting(true);
-    
-    // Optimistically update UI
-    const oldVote = userVote;
-    const oldCount = currentVoteCount;
-    setUserVote(targetValue);
-    setCurrentVoteCount(oldCount + (targetValue - oldVote));
-    
-    try {
-      const response = await fetch('/api/vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trackId: track.id, value }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        // Revert on error
-        setUserVote(oldVote);
-        setCurrentVoteCount(oldCount);
-        alert(data.error || 'Failed to vote');
-      } else {
-        // Notify parent to refresh all tracks (vote might have moved)
-        onVoteChange?.();
-      }
-    } catch (error) {
-      // Revert on error
-      setUserVote(oldVote);
-      setCurrentVoteCount(oldCount);
-      console.error('Error voting:', error);
-      alert('Failed to vote. Please try again.');
-    } finally {
-      setIsVoting(false);
-    }
-  };
+export default function TrackCard({ track, rank }: TrackCardProps) {
 
   const getRankColor = () => {
     if (rank === 1) return 'text-yellow-400';
@@ -161,62 +88,13 @@ export default function TrackCard({ track, rank, onVoteChange }: TrackCardProps)
                 <span>YouTube</span>
               </a>
             )}
-            <button
-              onClick={() => setShowComments(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 text-xs rounded-full transition-colors"
-            >
-              <span>💬</span>
-              <span>{commentCount}</span>
-            </button>
+            <TrackCommentButton trackId={track.id} />
           </div>
         </div>
 
         {/* Right: Voting */}
-        <div className="flex flex-col items-center justify-center gap-1">
-          <button
-            onClick={() => handleVote(1)}
-            disabled={locked || isVoting}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all duration-200 ${
-              userVote === 1
-                ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
-                : 'bg-purple-900/40 text-purple-300 hover:bg-purple-800/60'
-            } ${locked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-          >
-            ⬆️
-          </button>
-          
-          <div className="text-lg font-bold text-white py-1">
-            {currentVoteCount}
-          </div>
-          
-          <button
-            onClick={() => handleVote(-1)}
-            disabled={locked || isVoting}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all duration-200 ${
-              userVote === -1
-                ? 'bg-red-500 text-white shadow-lg shadow-red-500/50'
-                : 'bg-purple-900/40 text-purple-300 hover:bg-purple-800/60'
-            } ${locked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-          >
-            ⬇️
-          </button>
-        </div>
+        <VoteButtons trackId={track.id} initialVoteCount={track.voteCount} />
       </div>
-
-      {/* Comment Modal */}
-      <CommentModal
-        trackId={track.id}
-        trackTitle={`${track.title} - ${track.artist}`}
-        isOpen={showComments}
-        onClose={() => {
-          setShowComments(false);
-          // Refresh comment count
-          fetch(`/api/comments/${track.id}`)
-            .then(res => res.json())
-            .then(data => setCommentCount(data.length || 0))
-            .catch(console.error);
-        }}
-      />
     </div>
   );
 }
