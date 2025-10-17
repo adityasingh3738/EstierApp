@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { clerkClient } from '@clerk/nextjs/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -58,6 +59,11 @@ export async function GET(request: NextRequest) {
 
     // Update or create user with Spotify tokens
     console.log('Step 3: Upserting user in database...');
+    
+    // Get user info from Clerk for new user creation
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(state);
+    
     const updatedUser = await prisma.user.upsert({
       where: { id: state },
       update: {
@@ -67,6 +73,12 @@ export async function GET(request: NextRequest) {
       },
       create: {
         id: state,
+        username: clerkUser.username || clerkUser.id,
+        displayName: clerkUser.firstName && clerkUser.lastName 
+          ? `${clerkUser.firstName} ${clerkUser.lastName}`
+          : clerkUser.username || clerkUser.id,
+        bio: null,
+        avatarUrl: clerkUser.imageUrl || null,
         spotifyAccessToken: access_token,
         spotifyRefreshToken: refresh_token,
         spotifyExpiresAt: expiresAt,
