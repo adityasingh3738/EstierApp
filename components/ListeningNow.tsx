@@ -26,8 +26,15 @@ interface Listener {
 export default function ListeningNow() {
   const [listeners, setListeners] = useState<Listener[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const fetchListeners = async () => {
       try {
         const res = await fetch('/api/spotify/listening-now');
@@ -44,9 +51,9 @@ export default function ListeningNow() {
     // Refresh every 30 seconds
     const interval = setInterval(fetchListeners, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [mounted]);
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/20 rounded-xl p-6 border border-purple-700/30">
         <h2 className="text-2xl font-bold text-purple-300 mb-4">🎧 Listening Now</h2>
