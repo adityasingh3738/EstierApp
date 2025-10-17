@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    console.log('Step 1: Starting token exchange...');
     // Exchange code for tokens
     const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
@@ -39,12 +40,14 @@ export async function GET(request: NextRequest) {
 
     const tokenData = await tokenResponse.json();
     const { access_token, refresh_token, expires_in } = tokenData;
+    console.log('Step 2: Got tokens successfully');
 
     // Calculate expiry time
     const expiresAt = new Date(Date.now() + expires_in * 1000);
 
     // Update user with Spotify tokens
-    await prisma.user.update({
+    console.log('Step 3: Updating user in database...');
+    const updatedUser = await prisma.user.update({
       where: { id: state },
       data: {
         spotifyAccessToken: access_token,
@@ -52,7 +55,9 @@ export async function GET(request: NextRequest) {
         spotifyExpiresAt: expiresAt,
       },
     });
+    console.log('Step 4: User updated successfully:', updatedUser.id);
 
+    console.log('Step 5: Redirecting to success page');
     return NextResponse.redirect(new URL('/?spotify=connected', request.url));
   } catch (error) {
     console.error('Spotify callback error:', error);
