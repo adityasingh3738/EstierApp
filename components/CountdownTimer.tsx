@@ -4,8 +4,15 @@ import { useEffect, useState } from 'react';
 import { getTimeUntilSunday, isVotingLocked } from '@/lib/utils';
 
 export default function CountdownTimer() {
+  const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(getTimeUntilSunday());
   const [locked, setLocked] = useState(isVotingLocked());
+
+  useEffect(() => {
+    setMounted(true);
+    setTimeLeft(getTimeUntilSunday());
+    setLocked(isVotingLocked());
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -15,6 +22,10 @@ export default function CountdownTimer() {
 
     return () => clearInterval(timer);
   }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="flex items-center gap-2 text-sm">
