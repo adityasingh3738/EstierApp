@@ -1,3 +1,5 @@
+'use client';
+
 import SpotifyConnect from '@/components/SpotifyConnect';
 import ListeningNow from '@/components/ListeningNow';
 
