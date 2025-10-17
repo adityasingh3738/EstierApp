@@ -12,11 +12,7 @@ export async function GET() {
   }
 
   const clientId = process.env.SPOTIFY_OAUTH_CLIENT_ID;
-  let redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI;
-  // Ensure trailing slash to match Spotify dashboard config
-  if (redirectUri && !redirectUri.endsWith('/')) {
-    redirectUri = redirectUri + '/';
-  }
+  const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI;
   const scopes = 'user-read-currently-playing user-read-playback-state';
 
   console.log('Spotify OAuth Config:', { clientId, redirectUri });

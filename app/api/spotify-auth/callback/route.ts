@@ -21,11 +21,7 @@ export async function GET(request: NextRequest) {
 
   try {
     console.log('Step 1: Starting token exchange...');
-    // Ensure redirect URI matches what was sent in login (with trailing slash if configured)
-    let redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI!;
-    if (redirectUri && !redirectUri.endsWith('/')) {
-      redirectUri = redirectUri + '/';
-    }
+    const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI!;
     console.log('Using redirect URI:', redirectUri);
     
     // Exchange code for tokens
