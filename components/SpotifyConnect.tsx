@@ -34,10 +34,15 @@ export default function SpotifyConnect() {
   }, [user, mounted]);
 
   const handleConnect = () => {
-    console.log('Connect button clicked');
-    console.log('User:', user?.id);
-    console.log('Navigating to:', '/api/auth/spotify/login');
-    window.location.href = '/api/auth/spotify/login';
+    try {
+      console.log('Connect button clicked');
+      console.log('User:', user?.id);
+      console.log('Navigating to:', '/api/auth/spotify/login');
+      window.location.href = '/api/auth/spotify/login';
+      console.log('Navigation initiated');
+    } catch (error) {
+      console.error('Error in handleConnect:', error);
+    }
   };
 
   if (!mounted || !isLoaded || !user || loading) return null;
