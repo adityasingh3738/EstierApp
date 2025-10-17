@@ -5,6 +5,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/tracks(.*)',
   '/api/admin(.*)',
   '/api/vote(.*)',
+  '/api/auth/spotify(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
 ]);
