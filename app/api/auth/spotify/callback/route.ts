@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error');
 
   if (error || !code || !state) {
+    console.error('Spotify auth failed:', { error, hasCode: !!code, hasState: !!state });
     return NextResponse.redirect(new URL('/?error=spotify_auth_failed', request.url));
   }
 
@@ -29,7 +30,9 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tokenResponse.ok) {
-      throw new Error('Failed to exchange code for tokens');
+      const errorData = await tokenResponse.text();
+      console.error('Token exchange failed:', tokenResponse.status, errorData);
+      throw new Error(`Failed to exchange code for tokens: ${errorData}`);
     }
 
     const tokenData = await tokenResponse.json();
@@ -51,6 +54,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/?spotify=connected', request.url));
   } catch (error) {
     console.error('Spotify callback error:', error);
+    console.error('Full error details:', error instanceof Error ? error.message : String(error));
     return NextResponse.redirect(new URL('/?error=spotify_auth_failed', request.url));
   }
 }
