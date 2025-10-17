@@ -8,9 +8,11 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientId = process.env.SPOTIFY_OAUTH_CLIENT_ID;
   const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI;
   const scopes = 'user-read-currently-playing user-read-playback-state';
+
+  console.log('Spotify OAuth Config:', { clientId, redirectUri });
 
   const authUrl = new URL('https://accounts.spotify.com/authorize');
   authUrl.searchParams.append('client_id', clientId!);
