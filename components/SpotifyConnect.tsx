@@ -27,6 +27,9 @@ export default function SpotifyConnect() {
   }, [user]);
 
   const handleConnect = () => {
+    console.log('Connect button clicked');
+    console.log('User:', user?.id);
+    console.log('Navigating to:', '/api/auth/spotify/login');
     window.location.href = '/api/auth/spotify/login';
   };
 
