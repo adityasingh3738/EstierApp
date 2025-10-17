@@ -4,9 +4,14 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 
 export default function SpotifyConnect() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const [isConnected, setIsConnected] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Check if Spotify is connected
@@ -21,10 +26,12 @@ export default function SpotifyConnect() {
       }
     };
 
-    if (user) {
+    if (user && mounted) {
       checkConnection();
+    } else if (!user && mounted) {
+      setLoading(false);
     }
-  }, [user]);
+  }, [user, mounted]);
 
   const handleConnect = () => {
     console.log('Connect button clicked');
@@ -33,7 +40,7 @@ export default function SpotifyConnect() {
     window.location.href = '/api/auth/spotify/login';
   };
 
-  if (!user || loading) return null;
+  if (!mounted || !isLoaded || !user || loading) return null;
 
   if (isConnected) {
     return (
