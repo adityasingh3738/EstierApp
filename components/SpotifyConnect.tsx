@@ -37,8 +37,8 @@ export default function SpotifyConnect() {
     try {
       console.log('Connect button clicked');
       console.log('User:', user?.id);
-      console.log('Navigating to:', '/api/auth/spotify/login');
-      window.location.href = '/api/auth/spotify/login';
+      console.log('Navigating to:', '/api/spotify-auth/login');
+      window.location.href = '/api/spotify-auth/login';
       console.log('Navigation initiated');
     } catch (error) {
       console.error('Error in handleConnect:', error);

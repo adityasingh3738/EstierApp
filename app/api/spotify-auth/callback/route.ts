@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
 
   if (error || !code || !state) {
     console.error('Spotify auth failed:', { error, hasCode: !!code, hasState: !!state });
+    console.log('Redirecting to error page');
     return NextResponse.redirect(new URL('/?error=spotify_auth_failed', request.url));
   }
 
