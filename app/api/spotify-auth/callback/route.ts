@@ -20,6 +20,13 @@ export async function GET(request: NextRequest) {
 
   try {
     console.log('Step 1: Starting token exchange...');
+    // Ensure redirect URI matches what was sent in login (with trailing slash if configured)
+    let redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI!;
+    if (redirectUri && !redirectUri.endsWith('/')) {
+      redirectUri = redirectUri + '/';
+    }
+    console.log('Using redirect URI:', redirectUri);
+    
     // Exchange code for tokens
     const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
@@ -32,7 +39,7 @@ export async function GET(request: NextRequest) {
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI!,
+        redirect_uri: redirectUri,
       }),
     });
 
@@ -49,17 +56,23 @@ export async function GET(request: NextRequest) {
     // Calculate expiry time
     const expiresAt = new Date(Date.now() + expires_in * 1000);
 
-    // Update user with Spotify tokens
-    console.log('Step 3: Updating user in database...');
-    const updatedUser = await prisma.user.update({
+    // Update or create user with Spotify tokens
+    console.log('Step 3: Upserting user in database...');
+    const updatedUser = await prisma.user.upsert({
       where: { id: state },
-      data: {
+      update: {
+        spotifyAccessToken: access_token,
+        spotifyRefreshToken: refresh_token,
+        spotifyExpiresAt: expiresAt,
+      },
+      create: {
+        id: state,
         spotifyAccessToken: access_token,
         spotifyRefreshToken: refresh_token,
         spotifyExpiresAt: expiresAt,
       },
     });
-    console.log('Step 4: User updated successfully:', updatedUser.id);
+    console.log('Step 4: User upserted successfully:', updatedUser.id);
 
     console.log('Step 5: Redirecting to success page');
     return NextResponse.redirect(new URL('/?spotify=connected', request.url));
