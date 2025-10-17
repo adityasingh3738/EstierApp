@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
+  console.log('=== Spotify callback route hit ===');
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get('code');
   const state = searchParams.get('state'); // This is the userId
   const error = searchParams.get('error');
+  console.log('Callback params:', { code: code?.substring(0, 10), state, error });
 
   if (error || !code || !state) {
     console.error('Spotify auth failed:', { error, hasCode: !!code, hasState: !!state });
